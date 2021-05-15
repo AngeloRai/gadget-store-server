@@ -12,7 +12,7 @@ const uploadCloud = require("../config/cloudinary.config");
 
 router.post(
   "/image-upload",
-  
+  isAuthenticated, attachCurrentUser,
   uploadCloud.single("image"),
   (req, res) => {
     if (!req.file) {
