@@ -49,7 +49,6 @@ router.post(
 );
 
 // cRud --> READ find all
-
 router.get("/product", async (req, res) => {
   try {
     const result = await ProductModel.find();
@@ -100,8 +99,7 @@ router.get("/product/:id", async (req, res) => {
   }
 });
 
-// crUd (UPDATE) - HTTP PUT/PATCH
-// Atualizar um usuário
+// crUd --> UPDATE update one product
 router.put(
   "/product/:id",
   isAuthenticated,
@@ -109,10 +107,8 @@ router.put(
   isAdmin,
   async (req, res) => {
     try {
-      // Extrair o id do usuário do parâmetro de rota
       const { id } = req.params;
-
-      // Atualizar esse usuário específico no banco
+     
       const result = await ProductModel.findOneAndUpdate(
         { _id: id },
         { $set: req.body },
@@ -121,12 +117,10 @@ router.put(
 
       console.log(result);
 
-      // Caso a busca não tenha encontrado resultados, retorne 404
       if (!result) {
         return res.status(404).json({ msg: "Product not found." });
       }
 
-      // Responder com o usuário atualizado para o cliente
       return res.status(200).json(result);
     } catch (err) {
       console.error(err);
@@ -135,8 +129,7 @@ router.put(
   }
 );
 
-// cruD (DELETE) - HTTP DELETE
-// Deletar um usuário
+// cruD --> DELETE delete one product
 router.delete(
   "/product/:id",
   isAuthenticated,
@@ -144,20 +137,14 @@ router.delete(
   isAdmin,
   async (req, res) => {
     try {
-      // Extrair o id do usuário do parâmetro de rota
       const { id } = req.params;
 
-      // Deletar o usuário no banco
       const result = await ProductModel.deleteOne({ _id: id });
 
-      console.log(result);
-
-      // Caso a busca não tenha encontrado resultados, retorne 404
       if (result.n === 0) {
         return res.status(404).json({ msg: "Product not found." });
       }
 
-      // Por convenção, em deleções retornamos um objeto vazio para descrever sucesso
       return res.status(200).json({});
     } catch (err) {
       console.error(err);
