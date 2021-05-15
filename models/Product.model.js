@@ -12,7 +12,7 @@ const ProductSchema = new Schema({
   condition: { type: String, enum: ["NEW", "USED"], required: true },
   image_url: { type: String, default: "https://images.punkapi.com/v2/keg.png" },
   qtt_in_stock: { type: Number, required: true },
-  transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Transaction" }],
+  transactions: [{ type: Schema.Types.ObjectId, ref: "Transaction" }],
 });
 
 const ProductModel = model("Product", ProductSchema);

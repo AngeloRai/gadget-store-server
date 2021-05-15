@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const TransactionSchema = new mongoose.Schema({
+const TransactionSchema = mongoose.Schema({
   // ref é um atributo especial que aponta para o modelo que está criando um relacionamento com este modelo
   buyerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   products: [
