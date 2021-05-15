@@ -12,7 +12,7 @@ module.exports = (email, subject, message) => {
   });
 
   const mail = {
-    from: "pedro.resch@ironhack.com",
+    from: "thiago.evg@gmail.com",
     to: email,
     subject: subject,
     // text: message,

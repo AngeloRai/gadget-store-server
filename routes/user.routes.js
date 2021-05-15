@@ -116,4 +116,58 @@ router.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
   }
 });
 
+// crUd (UPDATE) - HTTP PUT/PATCH
+// Atualizar um usuário
+router.put("/user/:id", async (req, res) => {
+  try {
+    // Extrair o id do usuário do parâmetro de rota
+    const { id } = req.params;
+
+    // Atualizar esse usuário específico no banco
+    const result = await UserModel.findOneAndUpdate(
+      { _id: id },
+      { $set: req.body },
+      { new: true }
+    );
+
+    console.log(result);
+
+    // Caso a busca não tenha encontrado resultados, retorne 404
+    if (!result) {
+      return res.status(404).json({ msg: "User not found." });
+    }
+
+    // Responder com o usuário atualizado para o cliente
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: JSON.stringify(err) });
+  }
+});
+
+// cruD (DELETE) - HTTP DELETE
+// Deletar um usuário
+router.delete("/user/:id", async (req, res) => {
+  try {
+    // Extrair o id do usuário do parâmetro de rota
+    const { id } = req.params;
+
+    // Deletar o usuário no banco
+    const result = await UserModel.deleteOne({ _id: id });
+
+    console.log(result);
+
+    // Caso a busca não tenha encontrado resultados, retorne 404
+    if (result.n === 0) {
+      return res.status(404).json({ msg: "User not found." });
+    }
+
+    // Por convenção, em deleções retornamos um objeto vazio para descrever sucesso
+    return res.status(200).json({});
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: JSON.stringify(err) });
+  }
+});
+
 module.exports = router;
