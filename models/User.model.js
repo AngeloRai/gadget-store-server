@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   name: { type: String, required: true, trim: true },
   email: {
     type: String,
@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
     stateOrProvince: { type: String, required: true, trim: true },
     country: { type: String, required: true, trim: true },
   },
-  transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Transaction" }],
+  transactions: [{ type: Schema.Types.ObjectId, ref: "Transaction" }],
 });
 
 const UserModel = model("User", UserSchema);
