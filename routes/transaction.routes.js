@@ -10,23 +10,23 @@ const mailer = require("../config/nodemailer.config");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-// Criar uma sessão de Checkout no Stripe
+// Create a Checkout  Session through Stripe
 router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
   // Array para segurar dados dos produtos
   const line_items = [];
 
   try {
-    // Antes de liberar a venda, verifica se tem quantidade em estoque
+    //Loop through the selected products and creates the required object for Stripe to conclude the transaction
     for (let product of req.body.products) {
       const foundProduct = await ProductModel.findOne({
         _id: product.productId,
       });
-
+      // Verify qtt in stock before confirming transaction
       if (product.qtt > foundProduct.qtt_in_stock) {
         return res.status(403).json({ msg: "Not enough quantity in stock" });
       }
 
-      // Esse formato de objeto é o formato requerido pela API do Stripe
+      // This is the required format for the stripe API
       line_items.push({
         price_data: {
           currency: "usd",
@@ -55,32 +55,29 @@ router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
   }
 });
 
-// Criar uma nova transação (compra)
+// Create a new purchase transaction
 router.post(
   "/transaction",
   isAuthenticated,
   attachCurrentUser,
   async (req, res) => {
     try {
-      // Criar a transação
+      // Generate the transaction
       const result = await TransactionModel.create(req.body);
 
-      // Atualizar as transações deste usuário
+      // Update the transaction for this user 
       const updatedUser = await UserModel.findOneAndUpdate(
         { _id: req.body.buyerId },
         { $push: { transactions: result._id } }
       );
 
-      console.log(updatedUser);
-
-      // Atualizar as transações de cada produto
-
+      // Update transactions for each product 
       const productArr = [];
 
       for (let product of req.body.products) {
         const updatedProduct = await ProductModel.findOneAndUpdate(
           { _id: product.productId },
-          // $inc é o operador de incremento: ele vai subtrair ou adicionar desse campo a quantidade informada
+          // $inc is an increment operator: it will add or substract the informed qtt
           {
             $push: { transactions: result._id },
             // Atualizar os estoques dos produtos
@@ -100,7 +97,7 @@ router.post(
         return str;
       }
 
-      // Enviar o email de confirmação de compra
+      // Send confirmation Email for the purchase 
       const emailResponse = await mailer(
         req.currentUser.email,
         "Your order confirmation",
@@ -112,7 +109,7 @@ router.post(
         `
       );
 
-      // Responde o resultado pro cliente
+      // Sends result to the client 
       return res.status(201).json({ result, emailResponse });
     } catch (err) {
       console.error(err);
@@ -121,12 +118,12 @@ router.post(
   }
 );
 
-// Recuperar detalhes da transação
+// Retrieve transaction details
 router.get("/transaction/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Buscar os dados da transação usando o id da URL
+    // Search transaction using the product id from the URL (params)
     const result = await TransactionModel.findOne({ _id: id }).populate({
       path: "products.productId",
       model: "Product",
