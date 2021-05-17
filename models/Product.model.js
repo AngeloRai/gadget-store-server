@@ -10,8 +10,8 @@ const ProductSchema = new Schema({
   description: { type: String, maxlength: 500 },
   color: { type: String, required: true },
   condition: { type: String, enum: ["NEW", "USED"], required: true },
-  image_url: { type: String, default: "https://res.cloudinary.com/angeloraimondi/image/upload/v1621089570/gadget-store/file_i13ib0.png" },
-  qtt_in_stock: { type: Number, required: true },
+  image_url: [{ type: String, default: "https://res.cloudinary.com/angeloraimondi/image/upload/v1621089570/gadget-store/file_i13ib0.png" }],
+  qtt_in_stock: { type: Number, required: true, default: 1 },
   transactions: [{ type: Schema.Types.ObjectId, ref: "Transaction" }],
 });
 
