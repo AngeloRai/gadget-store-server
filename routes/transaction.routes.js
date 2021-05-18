@@ -12,6 +12,8 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Create a Checkout  Session through Stripe
 router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
+  console.log(req.body);
+  console.log(req.body.products);
   // Array para segurar dados dos produtos
   const line_items = [];
 
@@ -31,13 +33,14 @@ router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
         price_data: {
           currency: "usd",
           product_data: {
-            name: foundProduct.name,
-            images: [foundProduct.image_url],
+            name: foundProduct.model,
+            images: [foundProduct.image_url[0]],
           },
           unit_amount: parseInt(foundProduct.price * 100),
         },
         quantity: product.qtt,
       });
+      console.log("line items:", ...line_items)
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -65,13 +68,13 @@ router.post(
       // Generate the transaction
       const result = await TransactionModel.create(req.body);
 
-      // Update the transaction for this user 
+      // Update the transaction for this user
       const updatedUser = await UserModel.findOneAndUpdate(
         { _id: req.body.buyerId },
         { $push: { transactions: result._id } }
       );
 
-      // Update transactions for each product 
+      // Update transactions for each product
       const productArr = [];
 
       for (let product of req.body.products) {
@@ -97,7 +100,7 @@ router.post(
         return str;
       }
 
-      // Send confirmation Email for the purchase 
+      // Send confirmation Email for the purchase
       const emailResponse = await mailer(
         req.currentUser.email,
         "Your order confirmation",
@@ -109,7 +112,7 @@ router.post(
         `
       );
 
-      // Sends result to the client 
+      // Sends result to the client
       return res.status(201).json({ result, emailResponse });
     } catch (err) {
       console.error(err);
