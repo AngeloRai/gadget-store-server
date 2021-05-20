@@ -12,8 +12,6 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Create a Checkout  Session through Stripe
 router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
-  console.log(req.body);
-  console.log(req.body.products);
   // Array para segurar dados dos produtos
   const line_items = [];
 
@@ -36,11 +34,10 @@ router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
             name: foundProduct.model,
             images: [foundProduct.image_url[0]],
           },
-          unit_amount: parseInt(foundProduct.price * 100),
+          unit_amount: parseInt(foundProduct.price * ((100 - foundProduct.discount)/100) * 100),
         },
         quantity: product.qtt,
       });
-      console.log("line items:", ...line_items)
     }
 
     const session = await stripe.checkout.sessions.create({
