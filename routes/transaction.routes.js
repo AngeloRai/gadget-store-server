@@ -31,7 +31,7 @@ router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
       // This is the required format for the stripe API
       line_items.push({
         price_data: {
-          currency: "usd",
+          currency: "brl",
           product_data: {
             name: foundProduct.model,
             images: [foundProduct.image_url[0]],
