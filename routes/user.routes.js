@@ -9,45 +9,44 @@ const attachCurrentUser = require("../middlewares/attachCurrentUser");
 const salt_rounds = 10;
 
 // Crud (CREATE) - HTTP POST
-// Criar um novo usuário
+// Create a new USER
 router.post("/signup", async (req, res) => {
   // Requisições do tipo POST tem uma propriedade especial chamada body, que carrega a informação enviada pelo cliente
-  console.log(req.body);
 
   try {
-    // Recuperar a senha que está vindo do corpo da requisição
+    // Assign incoming password from body request
     const { password } = req.body;
 
-    // Verifica se a senha não está em branco ou se a senha não é complexa o suficiente
+    // Cheeck if passwaord secure enough 
     if (
       !password ||
       !password.match(
         /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/
       )
     ) {
-      // O código 400 significa Bad Request
+      // 400 Bad Request
       return res.status(400).json({
         msg: "Password is required and must have at least 8 characters, uppercase and lowercase letters, numbers and special characters.",
       });
     }
 
-    // Gera o salt
+    // Generate salt to add to the hashed password
     const salt = await bcrypt.genSalt(salt_rounds);
 
-    // Criptografa a senha
+    // Encrypt the password
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Salva os dados de usuário no banco de dados (MongoDB) usando o body da requisição como parâmetro
+    // Store data into the database (MongoDB) using body request as parameter 
     const result = await UserModel.create({
       ...req.body,
       passwordHash: hashedPassword,
     });
 
-    // Responder o usuário recém-criado no banco para o cliente (solicitante). O status 201 significa Created
+    // Respond client side with created user. Stauts 201: Created
     return res.status(201).json(result);
   } catch (err) {
     console.error(err);
-    // O status 500 signifca Internal Server Error
+    // 500 Internal Server Error
     return res.status(500).json({ msg: JSON.stringify(err) });
   }
 });
@@ -55,25 +54,23 @@ router.post("/signup", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
   try {
-    // Extraindo o email e senha do corpo da requisição
+    // Extract email and password from body request
     const { email, password } = req.body;
 
-    // Pesquisar esse usuário no banco pelo email
+    // Search user in the database by email
     const user = await UserModel.findOne({ email });
 
-    console.log(user);
-
-    // Se o usuário não foi encontrado, significa que ele não é cadastrado
+    // If user is not found, user is not registered 
     if (!user) {
       return res
         .status(400)
         .json({ msg: "This email is not yet registered in our website;" });
     }
 
-    // Verificar se a senha do usuário pesquisado bate com a senha recebida pelo formulário
+    // Verify if password matches with incoming password from the form
 
     if (await bcrypt.compare(password, user.passwordHash)) {
-      // Gerando o JWT com os dados do usuário que acabou de logar
+      // Generate JWT token with the logged user data
       const token = generateToken(user);
 
       return res.status(200).json({
@@ -86,7 +83,7 @@ router.post("/login", async (req, res) => {
         token,
       });
     } else {
-      // 401 Significa Unauthorized
+      // 401 Unauthorized
       return res.status(401).json({ msg: "Wrong password or email" });
     }
   } catch (err) {
@@ -96,16 +93,15 @@ router.post("/login", async (req, res) => {
 });
 
 // cRud (READ) - HTTP GET
-// Buscar dados do usuário
+// Search user data
 router.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
-  console.log(req.headers);
 
   try {
-    // Buscar o usuário logado que está disponível através do middleware attachCurrentUser
+    // Search logged user which is made available through the attachCurrentUser middleware
     const loggedInUser = req.currentUser;
 
     if (loggedInUser) {
-      // Responder o cliente com os dados do usuário. O status 200 significa OK
+      // Respond client side with user data. Stauts 201: Created
       return res.status(200).json(loggedInUser);
     } else {
       return res.status(404).json({ msg: "User not found." });
@@ -117,27 +113,25 @@ router.get("/profile", isAuthenticated, attachCurrentUser, (req, res) => {
 });
 
 // crUd (UPDATE) - HTTP PUT/PATCH
-// Atualizar um usuário
+// Update user data
 router.put("/user/:id", async (req, res) => {
   try {
-    // Extrair o id do usuário do parâmetro de rota
+    // Extract id from route parameter
     const { id } = req.params;
 
-    // Atualizar esse usuário específico no banco
+    // Update specific user data in the database
     const result = await UserModel.findOneAndUpdate(
       { _id: id },
       { $set: req.body },
       { new: true }
     );
 
-    console.log(result);
-
-    // Caso a busca não tenha encontrado resultados, retorne 404
+    // If user not found in database, return 404
     if (!result) {
       return res.status(404).json({ msg: "User not found." });
     }
 
-    // Responder com o usuário atualizado para o cliente
+    // Respond with user updated user to the client side
     return res.status(200).json(result);
   } catch (err) {
     console.error(err);
@@ -152,10 +146,8 @@ router.delete("/user/:id", async (req, res) => {
     // Extrair o id do usuário do parâmetro de rota
     const { id } = req.params;
 
-    // Deletar o usuário no banco
+    // Delete user from database
     const result = await UserModel.deleteOne({ _id: id });
-
-    console.log(result);
 
     // Caso a busca não tenha encontrado resultados, retorne 404
     if (result.n === 0) {

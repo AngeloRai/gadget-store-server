@@ -12,7 +12,9 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Create a Checkout  Session through Stripe
 router.post("/create-checkout-session", isAuthenticated, async (req, res) => {
-  // Array para segurar dados dos produtos
+
+    // Array to store product data
+
   const line_items = [];
 
   try {
@@ -128,8 +130,6 @@ router.get("/transaction/:id", async (req, res) => {
       path: "products.productId",
       model: "Product",
     });
-
-    console.log(result);
 
     return res.status(200).json(result);
   } catch (err) {
