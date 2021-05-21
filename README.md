@@ -1,3 +1,10 @@
+## Check out the site throguh this link: [PRIME GADGET](https://prime-gadgets.netlify.app/)
+
+## [Client Side Repo](https://github.com/AngeloRai/gadget-store-client)
+
+## [Here](https://docs.google.com/presentation/d/1S4o0DojhbV2nGNsa86-YobuvAQpd0jPye91y3DTE0ow/edit?ts=60a6a850#slide=id.gd39d7d08c1_1_54) you can understand a bit about the project by checking out [this slide](https://docs.google.com/presentation/d/1S4o0DojhbV2nGNsa86-YobuvAQpd0jPye91y3DTE0ow/edit?ts=60a6a850#slide=id.gd39d7d08c1_1_54)
+
+
 ![logo_ironhack_blue 7](https://user-images.githubusercontent.com/23629340/40541063-a07a0a8a-601a-11e8-91b5-2f13e4e6b441.png)
 
 # IronREST Boilerplate
