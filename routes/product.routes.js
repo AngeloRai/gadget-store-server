@@ -17,9 +17,6 @@ router.post(
     if (!req.file) {
       return res.status(500).json({ msg: "No file uploaded" });
     }
-
-    console.log(req.file);
-
     return res.status(201).json({ fileUrl: req.file.path });
   }
 );
@@ -53,8 +50,6 @@ router.get("/product", async (req, res) => {
   try {
     const result = await ProductModel.find();
 
-    console.log(result);
-
     if (result) {
       return res.status(200).json(result);
     } else {
@@ -80,8 +75,6 @@ router.get("/product/:id", async (req, res) => {
         model: "Transaction",
       });
     }
-
-    console.log(result);
 
     if (result) {
       return res
@@ -114,8 +107,6 @@ router.put(
         { $set: req.body },
         { new: true }
       );
-
-      console.log(result);
 
       if (!result) {
         return res.status(404).json({ msg: "Product not found." });
